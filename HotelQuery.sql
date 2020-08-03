@@ -1,0 +1,134 @@
+CREATE DATABASE Hotel
+
+USE HOTEL
+
+CREATE TABLE Employees(
+	Id INT PRIMARY KEY IDENTITY NOT NULL,
+	FirstName NVARCHAR(30) NOT NULL,
+	LastName NVARCHAR(30) NOT NULL,
+	Titlte NVARCHAR(30),
+	Notes NVARCHAR(MAX)
+)
+
+INSERT INTO Employees(FirstName,LastName,Titlte,Notes)
+VALUES
+('Ivan', 'Petrov', 'Worker', NULL),
+('Georgi', 'Aleksantdrov', 'Worker', NULL),
+('Peturv', 'Petrov', 'Worker', NULL)
+
+SELECT * FROM Employees
+
+CREATE TABLE Customers (
+AccountNumber INT UNIQUE NOT NULL, 
+FirstName NVARCHAR(30) NOT NULL, 
+LastName NVARCHAR(30) NOT NULL, 
+PhoneNumber CHAR(15), 
+EmergencyName NVARCHAR(30), 
+EmergencyNumber CHAR(15), 
+Notes NVARCHAR(MAX)
+)
+
+INSERT INTO Customers(AccountNumber, FirstName, LastName, PhoneNumber, EmergencyName, EmergencyNumber, Notes)
+VALUES
+(62312312, 'Ivan', 'Georgiev', 07724123, 'Gosho', 412451, NULL),
+(62321312, 'Petur', 'Petrov', 07724123, 'Gosho', 412451, NULL),
+(625122, 'Georgi', 'Ivanov', 07724123, 'Gosho', 412451, NULL)
+
+SELECT * FROM Customers
+
+CREATE TABLE RoomStatus(
+RoomStatus NVARCHAR(50) UNIQUE NOT NULL, 
+Notes NVARCHAR(MAX)
+)
+
+INSERT INTO RoomStatus(RoomStatus, Notes)
+VALUES
+('OCCUPIED', NULL),
+('FREE', NULL),
+('LOCKED', NULL)
+
+SELECT * FROM RoomStatus
+
+CREATE TABLE RoomTypes (
+RoomType NVARCHAR(30) UNIQUE NOT NULL, 
+Notes NVARCHAR(MAX)
+)
+
+INSERT INTO RoomTypes(RoomType, Notes)
+VALUES
+('DOUBLE', NULL),
+('TRIPLE', NULL),
+('APARTMENT', NULL)
+
+SELECT * FROM RoomTypes
+
+CREATE TABLE BedTypes (
+BedType NVARCHAR(30) UNIQUE NOT NULL,
+Notes NVARCHAR(MAX)
+)
+
+INSERT INTO BedTypes(BedType, Notes)
+VALUES
+('120 cm', NULL),
+('150 CM', NULL),
+('160CM', NULL)
+
+SELECT * FROM BedTypes
+
+CREATE TABLE ROOMS(
+RoomNumber INT UNIQUE NOT NULL, 
+RoomType NVARCHAR(30) FOREIGN KEY REFERENCES ROOMTYPES(ROOMTYPE), 
+BedType NVARCHAR(30) FOREIGN KEY REFERENCES BEDTYPES(BEDTYPE), 
+Rate DECIMAL(10,2), 
+RoomStatus NVARCHAR(50) FOREIGN KEY REFERENCES ROOMSTATUS(ROOMSTATUS), 
+Notes NVARCHAR(MAX)
+)
+
+INSERT INTO ROOMS(RoomNumber, RoomType, BedType, Rate, RoomStatus, Notes)
+VALUES
+(1, 'DOUBLE', '120 cm', 55.99, 'OCCUPIED', NULL),
+(2, 'TRIPLE', '120 cm', 100, 'FREE', NULL),
+(3, 'APARTMENT', '120 cm', 149.99, 'LOCKED', NULL)
+
+SELECT * FROM ROOMS
+
+CREATE TABLE Payments (
+Id INT PRIMARY KEY IDENTITY,
+EmployeeId INT FOREIGN KEY REFERENCES EMPLOYEES(ID) NOT NULL,
+PaymentDate DATETIME,
+AccountNumber INT FOREIGN KEY REFERENCES CUSTOMERS(ACCOUNTNUMBER) NOT NULL,
+FirstDateOccupied DATETIME,
+LastDateOccupied DATETIME, 
+TotalDays INT,
+AmountCharged DECIMAL(10,2),
+TaxRate INT,
+TaxAmount DECIMAL(10,2),
+PaymentTotal DECIMAL(10,2),
+Notes NVARCHAR(MAX))
+INSERT INTO Payments(EmployeeId, PaymentDate, AccountNumber, FirstDateOccupied, LastDateOccupied, 
+TotalDays, AmountCharged, TaxRate, TaxAmount, PaymentTotal, Notes)
+VALUES
+(1, '2020-05-20', 62312312, '2020-04-03', '2020-05-04', 30, 1000, 5, 50, 950, NULL),
+(2, '2020-05-20', 62312312, '2020-04-03', '2020-05-04', 30, 1000, 5, 50, 950, NULL),
+(3, '2020-05-20', 62312312, '2020-04-03', '2020-05-04', 30, 1000, 5, 50, 950, NULL)
+
+SELECT * FROM Payments
+
+CREATE TABLE Occupancies (
+Id INT PRIMARY KEY IDENTITY,
+EmployeeId INT FOREIGN KEY REFERENCES EMPLOYEES(ID),
+DateOccupied DATETIME,
+AccountNumber INT FOREIGN KEY REFERENCES CUSTOMERS(ACCOUNTNUMBER) ,
+RoomNumber INT FOREIGN KEY REFERENCES ROOMS(ROOMNUMBER),
+RateApplied INT,
+PhoneCharge DECIMAL(10,2), 
+Notes NVARCHAR(MAX)
+)
+
+INSERT INTO Occupancies(EmployeeId, DateOccupied, AccountNumber, RoomNumber, RateApplied, PhoneCharge, Notes)
+VALUES
+(1, '2020-05-04', 62312312, 1, 5, 23124, NULL),
+(1, '2020-05-04', 62312312, 1, 5, 23124, NULL),
+(1, '2020-05-04', 62312312, 1, 5, 23124, NULL)
+
+SELECT * FROM Occupancies
