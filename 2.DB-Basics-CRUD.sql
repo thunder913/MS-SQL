@@ -96,7 +96,7 @@ UPDATE Employees
 	SET Salary*=1.12
 	FROM Employees e
 		JOIN Departments d ON e.DepartmentID = d.DepartmentID
-
+	WHERE D.Name IN ('Engineering', 'Tool Design', 'Marketing', 'Information Services')
 SELECT Salary FROM Employees
 
 --22
