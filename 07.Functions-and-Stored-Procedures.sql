@@ -149,14 +149,16 @@ EXEC usp_GetHoldersFullName
 
 --10
 
-CREATE PROC usp_GetHoldersWithBalanceHigherThan(@balance DECIMAL(18,2))
+CREATE OR ALTER PROC usp_GetHoldersWithBalanceHigherThan(@balance MONEY)
 AS
 SELECT AH.FirstName, AH.LastName FROM Accounts A
 	JOIN AccountHolders AH ON AH.Id = A.AccountHolderId
-	WHERE A.Balance>@balance
+	GROUP BY AH.Id, AH.FirstName, AH.LastName
+	HAVING SUM(Balance)>@balance
 	ORDER BY AH.FirstName, AH.LastName
 
-EXEC usp_GetHoldersWithBalanceHigherThan 15000
+
+EXEC usp_GetHoldersWithBalanceHigherThan 100000
 
 --11
 
@@ -173,12 +175,14 @@ SELECT dbo.ufn_CalculateFutureValue(1000, 0.1, 5)
 
 --12
 
-CREATE PROC usp_CalculateFutureValueForAccount 
+CREATE OR ALTER PROC usp_CalculateFutureValueForAccount(@AccountId INT, @InterestRate DECIMAL(18,2))
 AS
-SELECT A.Id, AH.FirstName, AH.LastName, A.Balance 'Current Balance', dbo.ufn_CalculateFutureValue(A.Balance,0.1 , 5) 'Balance in 5 years' FROM Accounts A
+BEGIN
+SELECT A.Id 'Account Id', AH.FirstName, AH.LastName, A.Balance 'Current Balance', dbo.ufn_CalculateFutureValue(A.Balance,@InterestRate, 5) 'Balance in 5 years' FROM Accounts A
 	JOIN AccountHolders AH ON AH.Id = A.AccountHolderId
-
-EXEC usp_CalculateFutureValueForAccount
+	WHERE A.Id=@AccountId
+END
+EXEC usp_CalculateFutureValueForAccount 1,0.1
 
 --13
 
@@ -186,7 +190,7 @@ USE Diablo
 
 CREATE FUNCTION ufn_CashInUsersGames(@param NVARCHAR(50))
 RETURNS @result TABLE(
-	SumCash DECIMAL(18,2)
+	SumCash money
 )
 AS
 BEGIN
@@ -197,9 +201,5 @@ BEGIN
 		WHERE G.Name = @param
 		) TEMP
 		WHERE TEMP.RowNumber%2=1	
-
 	RETURN
 END
-
-SELECT * FROM dbo.ufn_CashInUsersGames('Love in a mist')
-
